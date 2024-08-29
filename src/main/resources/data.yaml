@@ -1,0 +1,23 @@
+users:
+  demoUser:
+    licenseKey: "123445"
+    log:
+      extraction:
+        projectFrom:
+          - source: "body"
+            field: "_index"
+            regex: ".*"
+
+        instanceFrom:
+          - source: "body"
+            field: "_source.nifi_node"
+            regex: ".*"
+
+        componentFrom:
+          - source: "body"
+            field: "_source.eventType"
+            regex: ".*"
+
+        timestampFrom:
+          - source: "body"
+            field: "_source.timestamp"

@@ -1,0 +1,11 @@
+insightFinderUrl: "https://stg.insightfinder.com"
+port: 4317
+tls:
+  keystore: "test"
+  keystorePassword: "test"
+  truststore: "test"
+  truststorePassword: "test"
+
+worker:
+  processThreads: 1
+  streamingThreads: 1

@@ -1,0 +1,30 @@
+package com.insightfinder.otlpserver.config;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+
+public class ServerConfig {
+  public String insightFinderUrl;
+  public int port;
+  public TLS tls;
+  public Worker worker;
+
+  public static class TLS {
+    public String keystore;
+    public String keystorePassword;
+    public String truststore;
+    public String truststorePassword;
+  }
+
+  public static class Worker{
+    public int processThreads;
+    public int streamingThreads;
+  }
+
+  @Override
+  public String toString() {
+    DumperOptions options = new DumperOptions();
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.AUTO);
+    Yaml yaml = new Yaml(options);
+    return yaml.dump(this);
+  }
+}
