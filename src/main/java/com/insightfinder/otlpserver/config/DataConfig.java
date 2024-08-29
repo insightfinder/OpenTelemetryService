@@ -26,12 +26,14 @@ public class DataConfig {
     public List<ExtractionRuleStr> instanceFrom;
     public List<ExtractionRuleStr> componentFrom;
     public List<ExtractionRuleStr> timestampFrom;
+    public List<ExtractionRuleStr> systemFrom;
   }
 
   public static class ExtractionRuleStr {
     public String source;
     public String field;
     public String regex;
+    public String value;
   }
 
   @Override

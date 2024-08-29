@@ -1,12 +1,15 @@
 users:
-  demoUser:
-    licenseKey: "123445"
+  maoyuwang:
+    licenseKey: ""
     log:
       extraction:
         projectFrom:
-          - source: "body"
-            field: "_index"
-            regex: ".*"
+          - source: "static"
+            value: "maoyu-test-otlpserver"
+
+        systemFrom:
+          - source: "static"
+            value: "maoyu-test-otlpserver"
 
         instanceFrom:
           - source: "body"

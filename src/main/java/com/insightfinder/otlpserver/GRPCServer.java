@@ -3,10 +3,11 @@ package com.insightfinder.otlpserver;
 import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.entity.SpanData;
-import com.insightfinder.otlpserver.processor.LogExtractionProcessor;
+import com.insightfinder.otlpserver.worker.LogExtractionWorker;
 import com.insightfinder.otlpserver.service.GrpcTraceService;
 import com.insightfinder.otlpserver.service.GrpcLogService;
 import com.insightfinder.otlpserver.util.RuleUtil;
+import com.insightfinder.otlpserver.worker.LogStreamingWorker;
 import io.grpc.*;
 import io.grpc.Context;
 import org.slf4j.*;
@@ -22,7 +23,7 @@ public class GRPCServer{
   public static final Context.Key<Metadata> METADATA_KEY = Context.key("metadata");
 
   public static final ConcurrentLinkedQueue<LogData> logProcessQueue = new ConcurrentLinkedQueue<>();
-  public static final ConcurrentLinkedQueue<LogData> logSendQueue = new ConcurrentLinkedQueue<>();
+  public static final ConcurrentLinkedQueue<LogData> logStreamingQueue = new ConcurrentLinkedQueue<>();
   public static final ConcurrentLinkedQueue<SpanData> spanProcessQueue = new ConcurrentLinkedQueue<>();
   public static final ConcurrentLinkedQueue<SpanData> spanSendQueue = new ConcurrentLinkedQueue<>();
 
@@ -57,13 +58,17 @@ public class GRPCServer{
     System.out.println("OTLP Trace Receiver started at port " + Config.getServerConfig().port);
 
 
-    // Consumers
-
-    ExecutorService executorService = Executors.newFixedThreadPool(Config.getServerConfig().worker.processThreads);
+    // LogExtraction Workers
+    ExecutorService logExtractionWorkerPool = Executors.newFixedThreadPool(Config.getServerConfig().worker.processThreads);
     for (int i = 0; i < Config.getServerConfig().worker.processThreads; i++) {
-      executorService.submit(new LogExtractionProcessor(i));
+      logExtractionWorkerPool.submit(new LogExtractionWorker(i));
     }
 
+    // LogStreaming Workers
+    ExecutorService logStreamingWorkerPool = Executors.newFixedThreadPool(Config.getServerConfig().worker.streamingThreads);
+    for (int i = 0; i < Config.getServerConfig().worker.streamingThreads; i++) {
+      logStreamingWorkerPool.submit(new LogStreamingWorker(i));
+    }
 
     server.awaitTermination();
   }

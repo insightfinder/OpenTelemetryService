@@ -7,5 +7,5 @@ tls:
   truststorePassword: "test"
 
 worker:
-  processThreads: 1
-  streamingThreads: 1
+  processThreads: 5
+  streamingThreads: 5

@@ -36,7 +36,7 @@ public class GrpcLogService extends LogsServiceGrpc.LogsServiceImplBase {
       for(var scopeLog: resourceLog.getScopeLogsList()){
         for(var logRecord: scopeLog.getLogRecordsList()){
           var logData = new LogData();
-          logData.data = logRecord.getBody().getStringValue();
+          logData.rawData = logRecord.getBody().getStringValue();
           logData.spanId = ParseUtil.parseHexadecimalBytes(logRecord.getSpanId());
           logData.traceId = ParseUtil.parseHexadecimalBytes(logRecord.getTraceId());
           logData.metadata = metadata;

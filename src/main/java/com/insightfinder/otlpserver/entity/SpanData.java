@@ -8,12 +8,12 @@ import java.util.Map;
 
 public class SpanData {
 
-  public long timestamp;
-  public String componentName;
-  public String instanceName;
-  public String projectName;
-
-  public Metadata metadata;
+  public transient long timestamp;
+  public transient String componentName;
+  public transient String instanceName;
+  public transient String projectName;
+  public transient String systemName;
+  public transient Metadata metadata;
 
   @SerializedName("traceID")
   public String traceID;

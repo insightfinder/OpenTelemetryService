@@ -1,5 +1,7 @@
-package com.insightfinder.otlpserver.processor;
+package com.insightfinder.otlpserver.worker;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.insightfinder.otlpserver.GRPCServer;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.util.*;
@@ -7,14 +9,14 @@ import io.grpc.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.insightfinder.otlpserver.GRPCServer.logSendQueue;
+import static com.insightfinder.otlpserver.GRPCServer.logStreamingQueue;
 
 
-public class LogExtractionProcessor implements Runnable {
+public class LogExtractionWorker implements Runnable {
 
-  public static Logger LOG = LoggerFactory.getLogger(LogExtractionProcessor.class.getName());
+  public static Logger LOG = LoggerFactory.getLogger(LogExtractionWorker.class.getName());
 
-  public LogExtractionProcessor(int threadNum){
+  public LogExtractionWorker(int threadNum){
     LOG.info("LogExtractionProcessor thread " + threadNum + " started.");
   }
 
@@ -34,6 +36,7 @@ public class LogExtractionProcessor implements Runnable {
         }
       }catch (Exception e){
         e.printStackTrace();
+        continue;
       }
 
 
@@ -78,7 +81,23 @@ public class LogExtractionProcessor implements Runnable {
         logData.componentName = componentName;
       }
 
-      logSendQueue.offer(logData);
+      // Extract SystemName
+      String systemName = RuleUtil.extractLogDataByRules(user, "system", logData);
+      if (!systemName.isEmpty()){
+        logData.systemName = systemName;
+      }
+
+
+      // Transform Raw data to actual data
+      JsonElement jsonObject = JsonUtil.parseJson(logData.rawData);
+      if(jsonObject == null){
+        logData.data = logData.rawData;
+      }else{
+        logData.data = jsonObject;
+      }
+      logData.rawData ="";
+
+      logStreamingQueue.offer(logData);
     }
   }
 }

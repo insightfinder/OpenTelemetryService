@@ -11,14 +11,16 @@ public class LogData {
   public String traceId;
 
   @SerializedName("data")
-  public String data;
-
-  public long timestamp;
-  public String componentName;
-  public String instanceName;
-  public String projectName;
-  public long senderTimestamp;
+  public Object data;
 
 
-  public Metadata metadata;
+  // Fields not included in Serialization.
+  public transient String rawData;
+  public transient long timestamp;
+  public transient String componentName;
+  public transient String instanceName;
+  public transient String systemName;
+  public transient String projectName;
+  public transient long senderTimestamp;
+  public transient Metadata metadata;
 }

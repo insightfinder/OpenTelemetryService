@@ -16,6 +16,7 @@ public class RuleUtil {
     public String source;
     public String field;
     public Pattern regex;
+    public String value;
   }
 
   public static void loadRules() {
@@ -28,6 +29,7 @@ public class RuleUtil {
       userLogExtractionRules.put("component", CompileRules(Config.getDataConfig().users.get(user).log.extraction.componentFrom));
       userLogExtractionRules.put("project", CompileRules(Config.getDataConfig().users.get(user).log.extraction.projectFrom));
       userLogExtractionRules.put("timestamp", CompileRules(Config.getDataConfig().users.get(user).log.extraction.timestampFrom));
+      userLogExtractionRules.put("system", CompileRules(Config.getDataConfig().users.get(user).log.extraction.systemFrom));
     }
   }
 
@@ -37,6 +39,7 @@ public class RuleUtil {
       var rule = new Rule();
       rule.source = ruleStr.source;
       rule.field = ruleStr.field;
+      rule.value = ruleStr.value;
       if (ruleStr.regex != null) {
         rule.regex = Pattern.compile(ruleStr.regex);
       }
@@ -49,7 +52,7 @@ public class RuleUtil {
     var result = "";
     for (var rule : logExtractionRules.get(user).get(dataType)) {
       if (rule.source.equals("body")) {
-        String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.data);
+        String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.rawData);
         if (bodyValue != null) {
           var matchResult = rule.regex.matcher(bodyValue);
           if (matchResult.find()) {
@@ -66,6 +69,8 @@ public class RuleUtil {
             break;
           }
         }
+      } else if (rule.source.equals("static")){
+        result = rule.value;
       }
     }
     return result;
@@ -75,7 +80,7 @@ public class RuleUtil {
     long result = 0;
     for (var rule : logExtractionRules.get(user).get("timestamp")) {
       if (rule.source.equals("body")) {
-        String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.data);
+        String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.rawData);
         if (bodyValue != null) {
             result = TimestampUtil.ToUnixMili(bodyValue);
         }
