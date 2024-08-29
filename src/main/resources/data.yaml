@@ -5,7 +5,7 @@ users:
       extraction:
         projectFrom:
           - source: "static"
-            value: "maoyu-test-otlpserver"
+            value: "maoyu-test-otlpserver-2"
 
         systemFrom:
           - source: "static"

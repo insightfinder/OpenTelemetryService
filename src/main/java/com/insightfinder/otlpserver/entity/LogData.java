@@ -1,16 +1,16 @@
 package com.insightfinder.otlpserver.entity;
 
-import com.google.gson.annotations.SerializedName;
+import com.alibaba.fastjson2.annotation.JSONField;
 import io.grpc.Metadata;
 
 public class LogData {
-  @SerializedName("spanId")
+  @JSONField(name = "spanId")
   public String spanId;
 
-  @SerializedName("traceId")
+  @JSONField(name ="traceId")
   public String traceId;
 
-  @SerializedName("data")
+  @JSONField(name = "data")
   public Object data;
 
 

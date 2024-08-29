@@ -1,7 +1,7 @@
 package com.insightfinder.otlpserver.worker;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.insightfinder.otlpserver.GRPCServer;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.util.*;
@@ -89,7 +89,7 @@ public class LogExtractionWorker implements Runnable {
 
 
       // Transform Raw data to actual data
-      JsonElement jsonObject = JsonUtil.parseJson(logData.rawData);
+      JSONObject jsonObject = JSON.parseObject(logData.rawData);
       if(jsonObject == null){
         logData.data = logData.rawData;
       }else{
@@ -98,6 +98,7 @@ public class LogExtractionWorker implements Runnable {
       logData.rawData ="";
 
       logStreamingQueue.offer(logData);
+      LOG.info("Sent Message");
     }
   }
 }

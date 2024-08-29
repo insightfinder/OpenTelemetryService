@@ -1,5 +1,5 @@
 package com.insightfinder.otlpserver.service;
-import com.google.gson.Gson;
+import com.alibaba.fastjson2.JSON;
 import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.entity.IFLogDataPayload;
 import com.insightfinder.otlpserver.entity.IFLogDataReceivePayload;
@@ -19,9 +19,8 @@ import okhttp3.*;
 
 public class InsightFinderService {
 
-  private static Logger LOG = LoggerFactory.getLogger(InsightFinderService.class.getName());
+  private static Logger LOG = LoggerFactory.getLogger(InsightFinderService.class);
   private static OkHttpClient httpClient = new OkHttpClient();
-  private static Gson gson = new Gson();
   private static final String LOG_STREAM_API = "/api/v1/customprojectrawdata";
 
   public static void createProjectIfNotExist(String projectName, String user ,String licenseKey) {
@@ -79,7 +78,7 @@ public class InsightFinderService {
     payload.setProjectName(logData.projectName);
     payload.setInsightAgentType("LogStreaming");
 
-    RequestBody body = RequestBody.create(gson.toJson(payload), MediaType.get("application/json"));
+    RequestBody body = RequestBody.create(JSON.toJSONBytes(payload), MediaType.get("application/json"));
     Request request = new Request.Builder()
             .url(Config.getServerConfig().insightFinderUrl + LOG_STREAM_API)
             .addHeader("agent-type", "Stream")

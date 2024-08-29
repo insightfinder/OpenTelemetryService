@@ -1,29 +1,30 @@
 package com.insightfinder.otlpserver.entity;
 
-import com.google.gson.annotations.SerializedName;
+import com.alibaba.fastjson2.annotation.JSONField;
+
 import java.util.List;
 
 public class IFLogDataReceivePayload {
 
-    @SerializedName("userName")
+    @JSONField(name = "userName")
     private String userName;
 
-    @SerializedName("projectName")
+    @JSONField(name = "projectName")
     private String projectName;
 
-    @SerializedName("licenseKey")
+    @JSONField(name = "licenseKey")
     private String licenseKey;
 
-    @SerializedName("metricData")
+    @JSONField(name = "metricData")
     private List<IFLogDataPayload> logDataList;
 
-    @SerializedName("agentType")
+    @JSONField(name = "agentType")
     private String insightAgentType;
 
-    @SerializedName("minTimestamp")
+    @JSONField(name = "minTimestamp")
     private Long minTimestamp;
 
-    @SerializedName("maxTimestamp")
+    @JSONField(name = "maxTimestamp")
     private Long maxTimestamp;
 
     // Getters and Setters

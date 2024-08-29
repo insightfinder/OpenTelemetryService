@@ -1,6 +1,6 @@
 package com.insightfinder.otlpserver.entity;
 
-import com.google.gson.annotations.SerializedName;
+import com.alibaba.fastjson2.annotation.JSONField;
 import io.grpc.Metadata;
 
 import java.util.HashMap;
@@ -15,28 +15,28 @@ public class SpanData {
   public transient String systemName;
   public transient Metadata metadata;
 
-  @SerializedName("traceID")
+  @JSONField(name = "traceID")
   public String traceID;
 
-  @SerializedName("traceAttributes")
+  @JSONField(name = "traceAttributes")
   public HashMap<String,Object> traceAttributes;
 
-  @SerializedName("spanID")
+  @JSONField(name = "spanID")
   public String spanID;
 
-  @SerializedName("operationName")
+  @JSONField(name = "operationName")
   public String operationName;
 
-  @SerializedName("startTime")
+  @JSONField(name = "startTime")
   public long startTime;
 
-  @SerializedName("endTime")
+  @JSONField(name = "endTime")
   public long endTime;
 
-  @SerializedName("duration")
+  @JSONField(name = "duration")
   public long duration;
 
-  @SerializedName("spanAttributes")
+  @JSONField(name = "spanAttributes")
   public Map<String, Object> spanAttributes;
 
 

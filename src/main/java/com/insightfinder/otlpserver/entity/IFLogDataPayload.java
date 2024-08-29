@@ -1,19 +1,19 @@
 package com.insightfinder.otlpserver.entity;
 
-import com.google.gson.annotations.SerializedName;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 public class IFLogDataPayload {
 
-    @SerializedName("timestamp")
+    @JSONField(name = "timestamp")
     private long timeStamp;
 
-    @SerializedName("tag")
+    @JSONField(name = "tag")
     private String tag;
 
-    @SerializedName("data")
+    @JSONField(name = "data")
     private Object data;
 
-    @SerializedName("componentName")
+    @JSONField(name = "componentName")
     private String componentName;
 
     // Getters and Setters

@@ -33,7 +33,6 @@ public class LogStreamingWorker implements Runnable {
         continue;
       }
 
-
       InsightFinderService.sendLogData(logData);
     }
   }
