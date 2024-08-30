@@ -131,12 +131,12 @@ users:
 ```
 To configure the extraction rules, you can set different types of `source` fields.
 
-| Source | Description                                                                                           | Use with    | SupportedBy                                                                                  |
-|--------|-------------------------------------------------------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
-| body   | It will search data in the data body. If the data is JSON, it will search data in the specific field. | field,regex | proprojectFrom<br/> systemFrom  <br/> instanceFrom  <br/> componentFrom  <br/> timestampFrom |
-| header | It will search data in the Header configure in the OpenTelemetry                                      | field,regex | proprojectFrom  <br/> systemFrom  <br/> instanceFrom  <br/> componentFrom                    |
-| static | It will use the value from `value` field as the result                                                | value       | proprojectFrom  <br/> systemFrom  <br/> instanceFrom  <br/> componentFrom                    |
-| sender | It will use the data receiving time as the timestamp.                                                 |             | timestampFrom                                                                                |
+| Source | Description                                                                                           | Use with    | SupportedBy                                                                         |
+|--------|-------------------------------------------------------------------------------------------------------|-------------|-------------------------------------------------------------------------------------|
+| body   | It will search data in the data body. If the data is JSON, it will search data in the specific field. | field,regex | projectFrom<br/> systemFrom  <br/> instanceFrom  <br/> componentFrom  <br/> timestampFrom |
+| header | It will search data in the Header configure in the OpenTelemetry                                      | field,regex | projectFrom  <br/> systemFrom  <br/> instanceFrom  <br/> componentFrom              |
+| static | It will use the value from `value` field as the result                                                | value       | projectFrom  <br/> systemFrom  <br/> instanceFrom  <br/> componentFrom              |
+| sender | It will use the data receiving time as the timestamp.                                                 |             | timestampFrom                                                                       |
 
 ##### Example 1: Get InstanceName from Log JSON data
 This example shows how to extract the instanceName from the data body and use it as the instanceName.
