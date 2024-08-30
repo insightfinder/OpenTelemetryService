@@ -86,12 +86,13 @@ public class LogExtractionWorker implements Runnable {
 
 
       // Transform Raw data to actual data
-      JSONObject jsonObject = JSON.parseObject(logData.rawData);
-      if(jsonObject == null){
-        logData.data = logData.rawData;
-      }else{
+      if(JsonUtil.isValidJsonStr(logData.rawData)){
+        JSONObject jsonObject = JSON.parseObject(logData.rawData);
         logData.data = jsonObject;
+      }else{
+        logData.data = logData.rawData;
       }
+
       logData.rawData ="";
 
       logStreamingQueue.offer(logData);

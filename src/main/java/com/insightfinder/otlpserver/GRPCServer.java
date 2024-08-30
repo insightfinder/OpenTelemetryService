@@ -95,7 +95,9 @@ public class GRPCServer{
     LOG.info("OTLP Trace Receiver started at port " + Config.getServerConfig().port);
 
 
+
     // LogExtraction Workers
+    // TODO: Use VirtualThread pool in Java 21 to improve performance.
     ExecutorService logExtractionWorkerPool = Executors.newFixedThreadPool(Config.getServerConfig().worker.processThreads);
     for (int i = 0; i < Config.getServerConfig().worker.processThreads; i++) {
       logExtractionWorkerPool.submit(new LogExtractionWorker(i));

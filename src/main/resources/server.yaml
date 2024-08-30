@@ -1,10 +1,23 @@
+# InsightFinder Engine URL
 insightFinderUrl: "https://stg.insightfinder.com"
+
+# The gRPC server listen port
 port: 4317
+
+# TLS/SSL settings.
 tls:
   enabled: false
+
+  # Path to full-chain certificate file (PEM)
   certificateFile: ""
+
+  # Path to the private key file.
   privateKeyFile: ""
 
+# Worker Thread Configurations.
 worker:
+  # DataProcess worker: Extracting information from the original data.
   processThreads: 1
+
+  # Streaming worker: Send data to InsightFinder.
   streamingThreads: 1

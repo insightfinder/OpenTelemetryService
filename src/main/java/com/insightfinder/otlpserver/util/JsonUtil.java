@@ -9,7 +9,19 @@ import org.slf4j.LoggerFactory;
 public class JsonUtil {
   public static Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
+
+  public static boolean isValidJsonStr(String str){
+    var trimStr = str.trim();
+    return (trimStr.startsWith("{") && trimStr.endsWith("}")) ||
+            (trimStr.startsWith("[") && trimStr.endsWith("]"));
+  }
+
   public static String getValueFromJsonStr(String path,String rawData){
+
+    if(!JsonUtil.isValidJsonStr(rawData)){
+      return null;
+    }
+
     var jsonObject = JSON.parseObject(rawData);
     if(jsonObject == null){
       return null;

@@ -5,18 +5,17 @@ users:
       extraction:
         projectFrom:
           - source: "static"
-            value: "maoyu-e2e-test-otlp-log-2"
+            value: "maoyu-e2e-test-otlp-log-ng2"
         systemFrom:
           - source: "static"
             value: "maoyu-e2e-test-otlpserver"
         instanceFrom:
           - source: "body"
             field: "_source.node"
-            regex: ".*"
+            regex: '.*'
         componentFrom:
-          - source: "body"
-            field: "_source.eventType"
-            regex: ".*"
+          - source: "static"
+            value: "test"
         timestampFrom:
           - source: "body"
             field: "_source.timestamp"

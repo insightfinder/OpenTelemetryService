@@ -52,16 +52,21 @@ public class RuleUtil {
             }
 
             // Load Trace Rules
-            var userLogExtractionRules = traceExtractionRules.get(user);
-            userLogExtractionRules.put("instance", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.instanceFrom));
-            userLogExtractionRules.put("component", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.componentFrom));
-            userLogExtractionRules.put("project", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.projectFrom));
-            userLogExtractionRules.put("system", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.systemFrom));
+            var userTraceExtractionRules = traceExtractionRules.get(user);
+            userTraceExtractionRules.put("instance", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.instanceFrom));
+            userTraceExtractionRules.put("component", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.componentFrom));
+            userTraceExtractionRules.put("project", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.projectFrom));
+            userTraceExtractionRules.put("system", CompileRules(Config.getDataConfig().users.get(user).trace.extraction.systemFrom));
         }
     }
 
     public static List<Rule> CompileRules(List<DataConfig.ExtractionRuleStr> ruleList) {
         var result = new ArrayList<Rule>();
+
+        if(ruleList == null || ruleList.isEmpty()){
+            return result;
+        }
+
         for (DataConfig.ExtractionRuleStr ruleStr : ruleList) {
             var rule = new Rule();
             rule.source = ruleStr.source;
@@ -79,25 +84,35 @@ public class RuleUtil {
         var result = "";
         for (var rule : logExtractionRules.get(user).get(dataType)) {
             if (rule.source.equals("body")) {
-                String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.rawData);
-                if (bodyValue != null) {
-                    var matchResult = rule.regex.matcher(bodyValue);
+
+                // Check if log is json
+                if(JsonUtil.isValidJsonStr(logData.rawData)){
+                    String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.rawData);
+                    if (bodyValue != null) {
+                        var matchResult = rule.regex.matcher(bodyValue);
+                        if (matchResult.find()) {
+                            return matchResult.group();
+                        }
+                    }
+                }else{
+                    // Process plain String log
+                    var matchResult = rule.regex.matcher(logData.rawData);
                     if (matchResult.find()) {
-                        result = matchResult.group();
-                        break;
+                        return matchResult.group();
                     }
                 }
+
+
             } else if (rule.source.equals("header")) {
                 String headerValue = logData.metadata.get(Metadata.Key.of(rule.field, Metadata.ASCII_STRING_MARSHALLER));
                 if (headerValue != null) {
                     var matchResult = rule.regex.matcher(headerValue);
                     if (matchResult.find()) {
-                        result = matchResult.group();
-                        break;
+                        return matchResult.group();
                     }
                 }
             } else if (rule.source.equals("static")) {
-                result = rule.value;
+                return rule.value;
             }
         }
         return result;
@@ -157,13 +172,11 @@ public class RuleUtil {
             if (rule.source.equals("body")) {
                 String bodyValue = JsonUtil.getValueFromJsonStr(rule.field, logData.rawData);
                 if (bodyValue != null) {
-                    result = TimestampUtil.ToUnixMili(bodyValue);
+                    return TimestampUtil.ToUnixMili(bodyValue);
                 }
             } else if (rule.source.equals("sender")) {
-                String headerValue = logData.metadata.get(Metadata.Key.of(rule.field, Metadata.ASCII_STRING_MARSHALLER));
-                if (headerValue != null) {
-                    result = TimestampUtil.ToUnixMili(headerValue);
-                }
+                String senderTimestamp = String.valueOf(logData.senderTimestamp);
+                return TimestampUtil.ToUnixMili(senderTimestamp);
             }
         }
         return result;
