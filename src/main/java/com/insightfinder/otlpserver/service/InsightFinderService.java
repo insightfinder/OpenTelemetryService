@@ -4,6 +4,8 @@ import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.entity.IFLogDataPayload;
 import com.insightfinder.otlpserver.entity.IFLogDataReceivePayload;
 import com.insightfinder.otlpserver.entity.LogData;
+import com.insightfinder.otlpserver.entity.SpanData;
+import com.insightfinder.otlpserver.util.TimestampUtil;
 import io.grpc.Metadata;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import org.slf4j.Logger;
@@ -57,28 +59,22 @@ public class InsightFinderService {
     }
   }
 
-  public static void sendLogData(LogData logData){
+  public static void sendData(Object data, String userName, String licenseKey, String projectName, String instanceName, long timestamp, String componentName){
     var iFLogData = new IFLogDataPayload();
-    var payload = new IFLogDataReceivePayload();
-
-    var user = logData.metadata.get(Metadata.Key.of("ifuser", Metadata.ASCII_STRING_MARSHALLER));
-    var licenseKey =  logData.metadata.get(Metadata.Key.of("iflicenseKey", Metadata.ASCII_STRING_MARSHALLER));
-
-
-    iFLogData.setData(logData);
-    iFLogData.setTag(logData.instanceName);
-    iFLogData.setTimeStamp(logData.timestamp);
-    if(logData.componentName != null && !logData.componentName.isEmpty()){
-      iFLogData.setComponentName(logData.componentName);
+    var iFPayload = new IFLogDataReceivePayload();
+    iFLogData.setData(data);
+    iFLogData.setTimeStamp(timestamp);
+    iFLogData.setTag(instanceName);
+    if(componentName != null && !componentName.isEmpty()){
+      iFLogData.setComponentName(componentName);
     }
+    iFPayload.setLogDataList(new ArrayList<>(List.of(iFLogData)));
+    iFPayload.setUserName(userName);
+    iFPayload.setLicenseKey(licenseKey);
+    iFPayload.setProjectName(projectName);
+    iFPayload.setInsightAgentType("LogStreaming");
 
-    payload.setLogDataList(new ArrayList<>(List.of(iFLogData)));
-    payload.setUserName(user);
-    payload.setLicenseKey(licenseKey);
-    payload.setProjectName(logData.projectName);
-    payload.setInsightAgentType("LogStreaming");
-
-    RequestBody body = RequestBody.create(JSON.toJSONBytes(payload), MediaType.get("application/json"));
+    RequestBody body = RequestBody.create(JSON.toJSONBytes(iFPayload), MediaType.get("application/json"));
     Request request = new Request.Builder()
             .url(Config.getServerConfig().insightFinderUrl + LOG_STREAM_API)
             .addHeader("agent-type", "Stream")
@@ -89,18 +85,21 @@ public class InsightFinderService {
     try (Response response = httpClient.newCall(request).execute()) {
       if (!response.isSuccessful()) {
         System.err.println("Error sending log data: " + response.message());
-      } else {
-        // Get the response as a string
-        String responseString = response.body().string();
-        System.out.println("Response: " + responseString);
       }
     } catch (IOException e) {
       System.err.println("Error sending log data: " + e.getMessage());
     }
-
-
   }
 
-  public static void main(String[] args) {
+  public static void sendLogData(LogData logData){
+    var user = logData.metadata.get(Metadata.Key.of("ifuser", Metadata.ASCII_STRING_MARSHALLER));
+    var licenseKey =  logData.metadata.get(Metadata.Key.of("iflicenseKey", Metadata.ASCII_STRING_MARSHALLER));
+    sendData(logData.data,user,licenseKey, logData.projectName, logData.instanceName, logData.timestamp, logData.componentName);
+  }
+
+  public static void sendTraceData(SpanData spanData){
+    var user = spanData.metadata.get(Metadata.Key.of("ifuser", Metadata.ASCII_STRING_MARSHALLER));
+    var licenseKey =  spanData.metadata.get(Metadata.Key.of("iflicenseKey", Metadata.ASCII_STRING_MARSHALLER));
+    sendData(spanData,user,licenseKey,spanData.projectName,spanData.instanceName, TimestampUtil.ToUnixMili(String.valueOf(spanData.startTime)),spanData.componentName);
   }
 }

@@ -5,22 +5,34 @@ users:
       extraction:
         projectFrom:
           - source: "static"
-            value: "maoyu-test-otlpserver-2"
-
+            value: "maoyu-test-otlpserver-3"
         systemFrom:
           - source: "static"
             value: "maoyu-test-otlpserver"
-
         instanceFrom:
           - source: "body"
             field: "_source.nifi_node"
             regex: ".*"
-
         componentFrom:
           - source: "body"
             field: "_source.eventType"
             regex: ".*"
-
         timestampFrom:
           - source: "body"
             field: "_source.timestamp"
+    trace:
+      extraction:
+        projectFrom:
+          - source: "static"
+            value: "maoyu-test-otlpserver-4"
+        systemFrom:
+          - source: "static"
+            value: "maoyu-test-otlpserver"
+        instanceFrom:
+          - source: "body"
+            field: "spanAttributes.net.host.name"
+            regex: ".*"
+        componentFrom:
+          - source: "body"
+            field: "traceAttributes.service.name"
+            regex: ".*"

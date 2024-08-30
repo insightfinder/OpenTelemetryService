@@ -8,4 +8,4 @@ tls:
 
 worker:
   processThreads: 1
-  streamingThreads: 5
+  streamingThreads: 1

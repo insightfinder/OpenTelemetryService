@@ -8,6 +8,8 @@ import com.insightfinder.otlpserver.service.GrpcTraceService;
 import com.insightfinder.otlpserver.service.GrpcLogService;
 import com.insightfinder.otlpserver.util.RuleUtil;
 import com.insightfinder.otlpserver.worker.LogStreamingWorker;
+import com.insightfinder.otlpserver.worker.TraceExtractionWorker;
+import com.insightfinder.otlpserver.worker.TraceStreamingWorker;
 import io.grpc.*;
 import io.grpc.Context;
 import org.slf4j.*;
@@ -24,8 +26,8 @@ public class GRPCServer{
 
   public static final ConcurrentLinkedQueue<LogData> logProcessQueue = new ConcurrentLinkedQueue<>();
   public static final ConcurrentLinkedQueue<LogData> logStreamingQueue = new ConcurrentLinkedQueue<>();
-  public static final ConcurrentLinkedQueue<SpanData> spanProcessQueue = new ConcurrentLinkedQueue<>();
-  public static final ConcurrentLinkedQueue<SpanData> spanSendQueue = new ConcurrentLinkedQueue<>();
+  public static final ConcurrentLinkedQueue<SpanData> traceProcessQueue = new ConcurrentLinkedQueue<>();
+  public static final ConcurrentLinkedQueue<SpanData> traceSendQueue = new ConcurrentLinkedQueue<>();
 
   public static void main(String[] args) throws Exception {
 
@@ -41,7 +43,8 @@ public class GRPCServer{
     GrpcLogService logService = new GrpcLogService();
 
     // Rule Engine
-    RuleUtil.loadRules();
+    RuleUtil.initLogExtractionRules();
+    RuleUtil.initTraceExtractionRules();
 
     // Interception
     GrpcInterceptionService interceptor = new GrpcInterceptionService();
@@ -70,6 +73,17 @@ public class GRPCServer{
       logStreamingWorkerPool.submit(new LogStreamingWorker(i));
     }
 
+    // TraceExtraction Workers
+    ExecutorService traceExtractionWorkerPool = Executors.newFixedThreadPool(Config.getServerConfig().worker.processThreads);
+    for (int i = 0; i < Config.getServerConfig().worker.processThreads; i++) {
+      traceExtractionWorkerPool.submit(new TraceExtractionWorker(i));
+    }
+
+    // TraceStreaming Workers
+    ExecutorService traceStreamingWorkerPool = Executors.newFixedThreadPool(Config.getServerConfig().worker.streamingThreads);
+    for (int i = 0; i < Config.getServerConfig().worker.streamingThreads; i++) {
+      traceStreamingWorkerPool.submit(new TraceStreamingWorker(i));
+    }
     server.awaitTermination();
   }
 

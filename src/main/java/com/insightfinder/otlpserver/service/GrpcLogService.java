@@ -20,7 +20,7 @@ public class GrpcLogService extends LogsServiceGrpc.LogsServiceImplBase {
   @Override
   public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
     LOG.info("Received export request");
-    extractLogData(request);
+    exportLogData(request);
 
     // Send a response back to the client
     ExportLogsServiceResponse response = ExportLogsServiceResponse.newBuilder().build();
@@ -29,7 +29,7 @@ public class GrpcLogService extends LogsServiceGrpc.LogsServiceImplBase {
   }
 
 
-  public void extractLogData(ExportLogsServiceRequest request){
+  public void exportLogData(ExportLogsServiceRequest request){
     Metadata metadata = METADATA_KEY.get();
 
     for(var resourceLog: request.getResourceLogsList()){

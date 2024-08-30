@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.insightfinder.otlpserver.GRPCServer.METADATA_KEY;
+import static com.insightfinder.otlpserver.GRPCServer.traceProcessQueue;
 
 public class GrpcTraceService extends TraceServiceGrpc.TraceServiceImplBase {
 
@@ -24,16 +25,8 @@ public class GrpcTraceService extends TraceServiceGrpc.TraceServiceImplBase {
   @Override
   public void export(ExportTraceServiceRequest request, StreamObserver<ExportTraceServiceResponse> responseObserver) {
 
-    // Extract Metadata
-
-
     // Extract trace data body
-    var spans = extractSpanData(request);
-
-    // Process
-
-
-
+    exportSpanData(request);
 
     // Send a response back to the client
     ExportTraceServiceResponse response = ExportTraceServiceResponse.newBuilder().build();
@@ -41,8 +34,7 @@ public class GrpcTraceService extends TraceServiceGrpc.TraceServiceImplBase {
     responseObserver.onCompleted();
   }
 
-  private List<SpanData> extractSpanData(ExportTraceServiceRequest request){
-    var spanDataList = new ArrayList<SpanData>();
+  private void exportSpanData(ExportTraceServiceRequest request){
     Metadata metadata = METADATA_KEY.get();
     for(ResourceSpans resourceSpans: request.getResourceSpansList()){
       // Get the attributes at Trace Level
@@ -61,10 +53,9 @@ public class GrpcTraceService extends TraceServiceGrpc.TraceServiceImplBase {
           span.endTime = rawSpan.getEndTimeUnixNano();
           span.spanAttributes = ParseUtil.parseAttributes(rawSpan.getAttributesList());
           span.metadata = metadata;
-          spanDataList.add(span);
+          traceProcessQueue.offer(span);
         }
       }
     }
-    return spanDataList;
   }
 }

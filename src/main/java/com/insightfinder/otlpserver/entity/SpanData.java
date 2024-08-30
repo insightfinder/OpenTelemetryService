@@ -8,7 +8,6 @@ import java.util.Map;
 
 public class SpanData {
 
-  public transient long timestamp;
   public transient String componentName;
   public transient String instanceName;
   public transient String projectName;

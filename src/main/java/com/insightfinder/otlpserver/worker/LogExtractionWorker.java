@@ -60,7 +60,6 @@ public class LogExtractionWorker implements Runnable {
       // Extract instanceName
       var instanceName = RuleUtil.extractLogDataByRules(user, "instance", logData);
       if (instanceName.isEmpty()){
-        LOG.warn("No instanceName found.");
         continue;
       }else{
         logData.instanceName = instanceName;
@@ -69,7 +68,6 @@ public class LogExtractionWorker implements Runnable {
       // Extract timestamp
       long timestamp = RuleUtil.extractLogTimestampByRules(user, logData);
       if (timestamp == 0){
-        LOG.warn("No timestamp found.");
         continue;
       }else {
         logData.timestamp = timestamp;
@@ -98,7 +96,6 @@ public class LogExtractionWorker implements Runnable {
       logData.rawData ="";
 
       logStreamingQueue.offer(logData);
-      LOG.info("Sent Message");
     }
   }
 }
