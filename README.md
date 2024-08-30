@@ -68,6 +68,7 @@ users:
             field: ''
             regex: ''
         
+        # (Optional)
         # The rule to extract projectName from the data
         systemFrom:
           - source: ''
@@ -80,11 +81,13 @@ users:
             field: ''
             regex: ''
 
+        # (Optional)
         # The rule to extract component from the data
         componentFrom:
           - source: ''
             field: ''
             regex: ''
+        
         # The rule to extract timestamp from the data
         timestampFrom:
           - source: ''
@@ -93,18 +96,28 @@ users:
     # Rules to process trace data.
     trace:
       extraction:
+
+        # The rule to extract projectName from the data
         projectFrom:
           - source: ''
             field: ''
             regex: ''
+
+        # (Optional)
+        # The rule to extract systemName from the data
         systemFrom:
           - source: ''
             field: ''
             regex: ''
+            
+        # The rule to extract instanceName from the data
         instanceFrom:
           - source: ''
             field: ''
             regex: ''
+        
+        # (Optional)
+        # The rule to extract componentName from the data
         componentFrom:
           - source: ''
             field: ''

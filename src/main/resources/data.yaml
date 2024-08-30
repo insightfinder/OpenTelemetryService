@@ -1,36 +1,66 @@
 users:
+
+  # InsightFinder username
   maoyuwang:
+
+    # InsightFinder licenseKey
     licenseKey: "123"
+
+    # Rules to process log data.
     log:
       extraction:
+
+        # The rule to extract projectName from the data
         projectFrom:
           - source: "static"
             value: "maoyu-e2e-test-otlp-log-ng2"
+
+        # (Optional)
+        # The rule to extract systemName from the data
         systemFrom:
           - source: "static"
             value: "maoyu-e2e-test-otlpserver"
+
+        # The rule to extract instanceName from the data
         instanceFrom:
           - source: "body"
             field: "_source.node"
             regex: '.*'
+
+        # (Optional)
+        # The rule to extract component from the data
         componentFrom:
           - source: "static"
             value: "test"
+
+        # The rule to extract timestamp from the data
         timestampFrom:
           - source: "body"
             field: "_source.timestamp"
+
+    # Rules to process trace data.
     trace:
       extraction:
+
+        # The rule to extract projectName from the data
         projectFrom:
           - source: "static"
             value: "maoyu-e2e-test-otlp-trace-2"
+
+        # (Optional)
+        # The rule to extract systemName from the data
         systemFrom:
           - source: "static"
             value: "maoyu-e2e-test-otlpserver"
+
+        # The rule to extract instanceName from the data
         instanceFrom:
           - source: "body"
             field: "spanAttributes.net.host.name"
             regex: ".*"
+
+        # (Optional)
+        # The rule to extract component from the data
         componentFrom:
           - source: "body"
             field: "traceAttributes.service.name"
