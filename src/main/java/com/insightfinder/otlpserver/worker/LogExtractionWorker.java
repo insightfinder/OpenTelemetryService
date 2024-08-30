@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.insightfinder.otlpserver.GRPCServer;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.util.*;
-import io.grpc.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,7 @@ import static com.insightfinder.otlpserver.GRPCServer.logStreamingQueue;
 
 public class LogExtractionWorker implements Runnable {
 
-  public static Logger LOG = LoggerFactory.getLogger(LogExtractionWorker.class.getName());
+  private final Logger LOG = LoggerFactory.getLogger(LogExtractionWorker.class);
 
   public LogExtractionWorker(int threadNum){
     LOG.info("LogExtractionProcessor thread " + threadNum + " started.");
@@ -23,7 +22,7 @@ public class LogExtractionWorker implements Runnable {
 
   @Override
   public void run() {
-    LogData logData = new LogData();
+    LogData logData;
 
     while(true) {
 
@@ -35,7 +34,7 @@ public class LogExtractionWorker implements Runnable {
           continue;
         }
       }catch (Exception e){
-        e.printStackTrace();
+        LOG.error(e.getMessage());
         continue;
       }
 
@@ -46,7 +45,7 @@ public class LogExtractionWorker implements Runnable {
       }
 
       // Setup
-      var user = logData.metadata.get(Metadata.Key.of("ifuser", Metadata.ASCII_STRING_MARSHALLER));
+      var user = ParseUtil.getIfUserFromMetadata(logData.metadata);
 
       // Extract projectName name
       var projectName = RuleUtil.extractLogDataByRules(user, "project", logData);

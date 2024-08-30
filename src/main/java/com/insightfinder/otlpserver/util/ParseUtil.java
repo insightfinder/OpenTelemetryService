@@ -1,6 +1,7 @@
 package com.insightfinder.otlpserver.util;
 
 import com.google.protobuf.ByteString;
+import io.grpc.Metadata;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 
@@ -35,5 +36,13 @@ public class ParseUtil {
       result.append(String.format("%02x", b));
     }
     return result.toString();
+  }
+
+  public static String getIfUserFromMetadata(Metadata metadata){
+    return metadata.get(Metadata.Key.of("ifuser", Metadata.ASCII_STRING_MARSHALLER));
+  }
+
+  public static String getLicenseKeyFromMedata(Metadata metadata){
+    return metadata.get(Metadata.Key.of("iflicenseKey", Metadata.ASCII_STRING_MARSHALLER));
   }
 }

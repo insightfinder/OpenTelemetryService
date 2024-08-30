@@ -43,11 +43,6 @@
     </dependency>
 
 
-    <dependency>
-      <groupId>jakarta.ws.rs</groupId>
-      <artifactId>jakarta.ws.rs-api</artifactId>
-      <version>4.0.0</version>
-    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -88,8 +83,6 @@
       <version>1.66.0</version>
     </dependency>
 
-
-
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-stub</artifactId>
@@ -100,13 +93,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <release>17</release>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>

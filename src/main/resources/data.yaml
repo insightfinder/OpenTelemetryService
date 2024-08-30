@@ -5,13 +5,13 @@ users:
       extraction:
         projectFrom:
           - source: "static"
-            value: "maoyu-test-otlpserver-3"
+            value: "maoyu-e2e-test-otlp-log-2"
         systemFrom:
           - source: "static"
-            value: "maoyu-test-otlpserver"
+            value: "maoyu-e2e-test-otlpserver"
         instanceFrom:
           - source: "body"
-            field: "_source.nifi_node"
+            field: "_source.node"
             regex: ".*"
         componentFrom:
           - source: "body"
@@ -24,10 +24,10 @@ users:
       extraction:
         projectFrom:
           - source: "static"
-            value: "maoyu-test-otlpserver-4"
+            value: "maoyu-e2e-test-otlp-trace-2"
         systemFrom:
           - source: "static"
-            value: "maoyu-test-otlpserver"
+            value: "maoyu-e2e-test-otlpserver"
         instanceFrom:
           - source: "body"
             field: "spanAttributes.net.host.name"

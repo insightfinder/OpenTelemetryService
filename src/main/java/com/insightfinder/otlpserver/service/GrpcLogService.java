@@ -19,7 +19,7 @@ public class GrpcLogService extends LogsServiceGrpc.LogsServiceImplBase {
 
   @Override
   public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
-    LOG.info("Received export request");
+    LOG.info("Received {} logs.",request.getResourceLogsCount());
     exportLogData(request);
 
     // Send a response back to the client

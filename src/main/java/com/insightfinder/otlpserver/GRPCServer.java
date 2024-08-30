@@ -3,6 +3,7 @@ package com.insightfinder.otlpserver;
 import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.entity.SpanData;
+import com.insightfinder.otlpserver.util.ValidationUtil;
 import com.insightfinder.otlpserver.worker.LogExtractionWorker;
 import com.insightfinder.otlpserver.service.GrpcTraceService;
 import com.insightfinder.otlpserver.service.GrpcLogService;
@@ -14,6 +15,7 @@ import io.grpc.*;
 import io.grpc.Context;
 import org.slf4j.*;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,6 +31,8 @@ public class GRPCServer{
   public static final ConcurrentLinkedQueue<SpanData> traceProcessQueue = new ConcurrentLinkedQueue<>();
   public static final ConcurrentLinkedQueue<SpanData> traceSendQueue = new ConcurrentLinkedQueue<>();
 
+  public static final ConcurrentHashMap<String,Boolean> projectLocalCache = new ConcurrentHashMap<>();
+
   public static void main(String[] args) throws Exception {
 
     // Startup
@@ -37,6 +41,13 @@ public class GRPCServer{
     LOG.info(Config.getServerConfig().toString());
     LOG.info("DataSettings:");
     LOG.info(Config.getDataConfig().toString());
+
+    if(ValidationUtil.ValidateDataConfig()){
+      LOG.info("Data configuration is valid.");
+    }else{
+      LOG.error("Exiting because data configuration is not valid.");
+      System.exit(1);
+    }
 
     // Services
     GrpcTraceService traceService = new GrpcTraceService();
@@ -56,9 +67,9 @@ public class GRPCServer{
       .maxInboundMessageSize(16 * 1024 * 1024) // Add the interceptor
       .build();
 
-    System.out.println("Starting OTLP Trace Receiver...");
+    LOG.info("Starting OTLP Trace Receiver...");
     server.start();
-    System.out.println("OTLP Trace Receiver started at port " + Config.getServerConfig().port);
+    LOG.info("OTLP Trace Receiver started at port " + Config.getServerConfig().port);
 
 
     // LogExtraction Workers

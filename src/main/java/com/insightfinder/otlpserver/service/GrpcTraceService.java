@@ -12,8 +12,6 @@ import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.insightfinder.otlpserver.GRPCServer.METADATA_KEY;
 import static com.insightfinder.otlpserver.GRPCServer.traceProcessQueue;
@@ -24,6 +22,9 @@ public class GrpcTraceService extends TraceServiceGrpc.TraceServiceImplBase {
 
   @Override
   public void export(ExportTraceServiceRequest request, StreamObserver<ExportTraceServiceResponse> responseObserver) {
+
+    LOG.info("Received trace data from user {}.", ParseUtil.getIfUserFromMetadata(METADATA_KEY.get()));
+
 
     // Extract trace data body
     exportSpanData(request);
