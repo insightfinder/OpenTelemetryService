@@ -8,17 +8,23 @@ To connect to this service, we just need to add one OLTP exporter with two addit
 ## Prerequisite
 - OpenJDK 21+
 
+## Dev
+1. Go to InteliliJ IDEA Configuration and add a new `Application` configuration.
+2. Set `Main class` to `com.insightfinder.otlpserver.GRPCServer`
+3. Set `Working Directory` to `src/main/resources`
+4. You can run this agent now.
+
 ## Build
 ```shell
 mvn clean package
 java -jar otlpserver-1.0.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-## Dev
-1. Go to InteliliJ IDEA Configuration and add a new `Application` configuration.
-2. Set `Main class` to `com.insightfinder.otlpserver.GRPCServer`
-3. Set `Working Directory` to `src/main/resources`
-4. You can run this agent now.
+## Deployment
+1. Download the prebuild jar file (e.g `otlpserver-1.0.0-SNAPSHOT-jar-with-dependencies.jar`).
+2. Create `server.yaml` and `data.yaml` under the same directory as the jar file. See example [here](src/main/resources).
+3. Edit those two configuration files based on your needs.
+4. Start the server with `java -jar <YOUR_JAR_FILE>`
 
 ## Configure
 ### Server Configuration
