@@ -13,8 +13,12 @@ import com.insightfinder.otlpserver.worker.TraceExtractionWorker;
 import com.insightfinder.otlpserver.worker.TraceStreamingWorker;
 import io.grpc.*;
 import io.grpc.Context;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NettyServerBuilder;
+import io.netty.handler.ssl.SslContext;
 import org.slf4j.*;
 
+import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,12 +64,31 @@ public class GRPCServer{
     // Interception
     GrpcInterceptionService interceptor = new GrpcInterceptionService();
 
-    Server server = ServerBuilder.forPort(Config.getServerConfig().port)
-      .addService(traceService)
-      .addService(logService)
-      .intercept(interceptor)
-      .maxInboundMessageSize(16 * 1024 * 1024) // Add the interceptor
-      .build();
+
+    Server server;
+    if(Config.getServerConfig().tls.enabled){
+
+      SslContext sslContext = GrpcSslContexts.forServer(new File(Config.getServerConfig().tls.certificateFile), new File(Config.getServerConfig().tls.privateKeyFile))
+              .trustManager(new File(Config.getServerConfig().tls.certificateFile))
+              .build();
+
+      server = NettyServerBuilder.forPort(Config.getServerConfig().port)
+              .addService(traceService)
+              .addService(logService)
+              .intercept(interceptor) // Add the interceptor to store metadata
+              .maxInboundMessageSize(16 * 1024 * 1024)
+              .sslContext(sslContext)
+              .build();
+
+    }else {
+      server = ServerBuilder.forPort(Config.getServerConfig().port)
+              .addService(traceService)
+              .addService(logService)
+              .intercept(interceptor) // Add the interceptor to store metadata
+              .maxInboundMessageSize(16 * 1024 * 1024)
+              .build();
+    }
+
 
     LOG.info("Starting OTLP Trace Receiver...");
     server.start();

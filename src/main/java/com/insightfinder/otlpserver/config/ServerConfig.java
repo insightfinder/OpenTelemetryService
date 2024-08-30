@@ -9,10 +9,9 @@ public class ServerConfig {
   public Worker worker;
 
   public static class TLS {
-    public String keystore;
-    public String keystorePassword;
-    public String truststore;
-    public String truststorePassword;
+    public boolean enabled;
+    public String certificateFile;
+    public String privateKeyFile;
   }
 
   public static class Worker{

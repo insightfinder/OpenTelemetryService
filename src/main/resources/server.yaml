@@ -1,10 +1,9 @@
 insightFinderUrl: "https://stg.insightfinder.com"
 port: 4317
 tls:
-  keystore: "test"
-  keystorePassword: "test"
-  truststore: "test"
-  truststorePassword: "test"
+  enabled: false
+  certificateFile: ""
+  privateKeyFile: ""
 
 worker:
   processThreads: 1
