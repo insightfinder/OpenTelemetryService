@@ -1,6 +1,6 @@
 users:
   maoyuwang:
-    licenseKey: ""
+    licenseKey: "123"
     log:
       extraction:
         projectFrom:

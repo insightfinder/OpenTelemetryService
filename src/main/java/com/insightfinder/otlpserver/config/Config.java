@@ -1,46 +1,42 @@
 package com.insightfinder.otlpserver.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.logging.Logger;
 
 public class Config {
 
-    public static Logger LOG = Logger.getLogger(Config.class.getName());
+    public static Logger LOG = LoggerFactory.getLogger(Config.class);
     private static ServerConfig serverConfig;
     private static DataConfig dataConfig;
     private static final String WorkDir = System.getProperty("user.dir");
 
     public static ServerConfig getServerConfig(){
-
       if (serverConfig == null) {
-        serverConfig = new ServerConfig();
-
-        try{
-          InputStream inputStream = new FileInputStream(WorkDir + "/server.yaml");
-          serverConfig = new Yaml().loadAs(inputStream,ServerConfig.class);
-        }catch (Exception e){
-          LOG.severe(e.toString());
-          System.exit(1);
-        }
+          try{
+              serverConfig = new Yaml().loadAs(new FileInputStream(WorkDir + "/server.yaml"), ServerConfig.class);
+              return serverConfig;
+          }catch (Exception e){
+              LOG.error(e.getMessage());
+              System.exit(1);
+          }
       }
-
       return serverConfig;
     }
 
     public static DataConfig getDataConfig(){
-      if (dataConfig == null) {
-        dataConfig = new DataConfig();
-        try{
-          InputStream inputStream = new FileInputStream(WorkDir + "/data.yaml");
-          dataConfig = new Yaml().loadAs(inputStream, DataConfig.class);
-        }catch (Exception e){
-          LOG.severe(e.toString());
-          System.exit(1);
+        if (dataConfig == null) {
+            try{
+                dataConfig = new Yaml().loadAs(new FileInputStream(WorkDir + "/data.yaml"), DataConfig.class);
+                return dataConfig;
+            }catch (Exception e) {
+                LOG.error(e.getMessage());
+                System.exit(1);
+            }
         }
-      }
-      return dataConfig;
+        return dataConfig;
     }
+
 }
