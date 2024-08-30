@@ -24,7 +24,7 @@ users:
         # The rule to extract instanceName from the data
         instanceFrom:
           - source: "body"
-            field: "_source.node"
+            field: "_source.nifi_node"
             regex: '.*'
 
         # (Optional)

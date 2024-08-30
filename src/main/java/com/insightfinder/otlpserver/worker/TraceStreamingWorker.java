@@ -24,7 +24,7 @@ public class TraceStreamingWorker implements Runnable {
 
       // Get task from the queue.
       try{
-        spanData= GRPCServer.traceSendQueue.poll();
+        spanData= GRPCServer.traceStreamingQueue.poll();
         if (spanData == null){
           Thread.sleep(100);
           continue;

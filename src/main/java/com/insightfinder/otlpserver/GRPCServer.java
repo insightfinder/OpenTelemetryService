@@ -33,7 +33,7 @@ public class GRPCServer{
   public static final ConcurrentLinkedQueue<LogData> logProcessQueue = new ConcurrentLinkedQueue<>();
   public static final ConcurrentLinkedQueue<LogData> logStreamingQueue = new ConcurrentLinkedQueue<>();
   public static final ConcurrentLinkedQueue<SpanData> traceProcessQueue = new ConcurrentLinkedQueue<>();
-  public static final ConcurrentLinkedQueue<SpanData> traceSendQueue = new ConcurrentLinkedQueue<>();
+  public static final ConcurrentLinkedQueue<SpanData> traceStreamingQueue = new ConcurrentLinkedQueue<>();
 
   public static final ConcurrentHashMap<String,Boolean> projectLocalCache = new ConcurrentHashMap<>();
 

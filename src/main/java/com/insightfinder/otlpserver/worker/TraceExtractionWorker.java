@@ -8,7 +8,7 @@ import com.insightfinder.otlpserver.util.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.insightfinder.otlpserver.GRPCServer.traceSendQueue;
+import static com.insightfinder.otlpserver.GRPCServer.traceStreamingQueue;
 
 
 public class TraceExtractionWorker implements Runnable {
@@ -75,7 +75,7 @@ public class TraceExtractionWorker implements Runnable {
                 spanData.systemName = systemName;
             }
 
-            traceSendQueue.offer(spanData);
+            traceStreamingQueue.offer(spanData);
         }
     }
 }
