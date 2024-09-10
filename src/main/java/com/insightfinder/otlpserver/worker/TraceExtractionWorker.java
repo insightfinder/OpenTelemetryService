@@ -1,5 +1,6 @@
 package com.insightfinder.otlpserver.worker;
 
+import com.alibaba.fastjson2.JSON;
 import com.insightfinder.otlpserver.GRPCServer;
 import com.insightfinder.otlpserver.entity.SpanData;
 import com.insightfinder.otlpserver.util.ParseUtil;
@@ -50,6 +51,8 @@ public class TraceExtractionWorker implements Runnable {
             // Extract projectName name
             var projectName = RuleUtil.extractSpanDataByRules(user, "project", spanData);
             if (projectName.isEmpty()) {
+                LOG.warn("Unable to extract projectName.");
+                LOG.warn(JSON.toJSONString(spanData));
                 continue;
             } else {
                 spanData.projectName = projectName;
@@ -58,6 +61,8 @@ public class TraceExtractionWorker implements Runnable {
             // Extract instanceName
             var instanceName = RuleUtil.extractSpanDataByRules(user, "instance", spanData);
             if (instanceName.isEmpty()) {
+                LOG.warn("Unable to extract instanceName.");
+                LOG.warn(JSON.toJSONString(spanData));
                 continue;
             } else {
                 spanData.instanceName = instanceName;

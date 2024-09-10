@@ -131,9 +131,14 @@ public class RuleUtil {
                     subField = rule.field.replaceFirst("traceAttributes.", "");
                     bodyObject = spanData.traceAttributes.get(subField);
 
-                } else {
+                } else if(rule.field.startsWith("spanAttributes")) {
                     subField = rule.field.replaceFirst("spanAttributes.", "");
                     bodyObject = spanData.spanAttributes.get(subField);
+                }else if (rule.field.trim().equals("operationName")){
+                    bodyObject = spanData.operationName;
+                }
+                else{
+                    bodyObject = spanData.spanAttributes.get(rule.field);
                 }
                 if (bodyObject == null) {
                     continue;
@@ -145,7 +150,7 @@ public class RuleUtil {
                 var matchResult = rule.regex.matcher(bodyString);
                 if (matchResult.find()) {
                     result = matchResult.group();
-                    return result;
+                    return result.trim();
                 }
 
 
