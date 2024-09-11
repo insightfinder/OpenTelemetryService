@@ -23,6 +23,9 @@ public class SpanData {
   @JSONField(name = "spanID")
   public String spanID;
 
+  @JSONField(name = "parentSpanId")
+  public String parentSpanId;
+
   @JSONField(name = "operationName")
   public String operationName;
 

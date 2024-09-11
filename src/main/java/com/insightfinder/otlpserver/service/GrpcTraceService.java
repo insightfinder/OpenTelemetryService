@@ -49,6 +49,7 @@ public class GrpcTraceService extends TraceServiceGrpc.TraceServiceImplBase {
           span.traceAttributes = traceAttributes;
           span.duration = rawSpan.getEndTimeUnixNano() - rawSpan.getStartTimeUnixNano();
           span.spanID = ParseUtil.parseHexadecimalBytes(rawSpan.getSpanId());
+          span.parentSpanId = ParseUtil.parseHexadecimalBytes(rawSpan.getParentSpanId());
           span.operationName = rawSpan.getName();
           span.startTime = rawSpan.getStartTimeUnixNano();
           span.endTime = rawSpan.getEndTimeUnixNano();
