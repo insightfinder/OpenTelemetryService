@@ -1,0 +1,9 @@
+services:
+  ifotlpserver:
+    image: insightfinderinc/otlpserver:latest
+    build: .
+    ports:
+      - "4317:4317"
+    volumes:
+      - ./src/main/resources/data.yaml:/app/data.yaml
+      - ./src/main/resources/server.yaml:/app/server.yaml
