@@ -23,7 +23,7 @@ public class InsightFinderService {
     private final Logger LOG = LoggerFactory.getLogger(InsightFinderService.class);
     private final String LOG_STREAM_API = "/api/v1/customprojectrawdata";
     private final String CHECK_PROJECT_API = "/api/v1/check-and-add-custom-project";
-
+    private final OkHttpClient httpClient = new OkHttpClient();
     private final String ifUrl;
 
     public InsightFinderService(String ifUrl) {
@@ -32,7 +32,7 @@ public class InsightFinderService {
 
     public boolean createProjectIfNotExist(String projectName, String projectType, String systemName, String user, String licenseKey) {
 
-        var httpClient = new OkHttpClient();
+        
 
         boolean projectExist;
         RequestBody emptyFormBody = new FormBody.Builder()
@@ -70,7 +70,7 @@ public class InsightFinderService {
         // Create Project
         if (!projectExist) {
 
-            var createProjectUrl = Objects.requireNonNull(HttpUrl.parse("%s/%s".formatted(ifUrl,CHECK_PROJECT_API)))
+            var createProjectUrl = Objects.requireNonNull(HttpUrl.parse(ifUrl + CHECK_PROJECT_API))
                     .newBuilder()
                     .addQueryParameter("userName", user)
                     .addQueryParameter("licenseKey", licenseKey)
@@ -99,7 +99,7 @@ public class InsightFinderService {
                     LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user, response.code());
                     return false;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOG.error(e.getMessage());
                 return false;
             }
@@ -111,9 +111,6 @@ public class InsightFinderService {
     public void sendData(Object data, String userName, String licenseKey, String projectName, String instanceName, long timestamp, String componentName) {
         var iFLogData = new IFLogDataPayload();
         var iFPayload = new IFLogDataReceivePayload();
-
-        var httpClient = new OkHttpClient();
-
 
         iFLogData.setData(data);
         iFLogData.setTimeStamp(timestamp);
