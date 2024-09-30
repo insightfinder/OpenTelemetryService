@@ -8,22 +8,23 @@ import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.entity.SpanData;
 import com.insightfinder.otlpserver.util.ParseUtil;
 import com.insightfinder.otlpserver.util.TimestampUtil;
-import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 
 public class InsightFinderService {
 
     private final Logger LOG = LoggerFactory.getLogger(InsightFinderService.class);
     private final String LOG_STREAM_API = "/api/v1/customprojectrawdata";
     private final String CHECK_PROJECT_API = "/api/v1/check-and-add-custom-project";
-    private final OkHttpClient httpClient = new OkHttpClient();
+    private final HttpClient httpClient = HttpClient.newHttpClient();
     private final String ifUrl;
 
     public InsightFinderService(String ifUrl) {
@@ -32,61 +33,57 @@ public class InsightFinderService {
 
     public boolean createProjectIfNotExist(String projectName, String projectType, String systemName, String user, String licenseKey) {
 
-        
-
         boolean projectExist;
-        RequestBody emptyFormBody = new FormBody.Builder()
-                .add("anything", "anything")
-                .build();
+        var emptyFormBody = "anything=anything";
 
         // Check Project
-        var checkProjectUrl = Objects.requireNonNull(HttpUrl.parse(Config.getServerConfig().insightFinderUrl + CHECK_PROJECT_API))
-                .newBuilder()
-                .addQueryParameter("userName", user)
-                .addQueryParameter("licenseKey", licenseKey)
-                .addQueryParameter("projectName", projectName)
-                .addQueryParameter("systemName", systemName)
-                .addQueryParameter("operation", "check").build();
-        var checkProjectRequest = new Request.Builder().url(checkProjectUrl).addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .post(emptyFormBody).build();
-        try (Response response = httpClient.newCall(checkProjectRequest).execute()) {
-            if (response.isSuccessful()) {
-                if (response.body() != null) {
-                    var responseBodyJson = JSON.parseObject(response.body().string());
-                    projectExist = responseBodyJson.getBoolean("isProjectExist");
-                } else {
-                    projectExist = false;
-                }
-
+        var checkProjectUrl = URI.create(Config.getServerConfig().insightFinderUrl + CHECK_PROJECT_API + 
+                "?userName=" + user + 
+                "&licenseKey=" + licenseKey + 
+                "&projectName=" + projectName + 
+                "&systemName=" + systemName + 
+                "&operation=check");
+        var checkProjectRequest = HttpRequest.newBuilder()
+                .uri(checkProjectUrl)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(emptyFormBody))
+                .build();
+        try {
+            var response = httpClient.send(checkProjectRequest, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                var responseBodyJson = JSON.parseObject(response.body());
+                projectExist = responseBodyJson.getBoolean("isProjectExist");
             } else {
-                LOG.error("Request failed with code: {}", response.code());
+                LOG.error("Request failed with code: {}", response.statusCode());
                 return false;
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             LOG.error(e.getMessage());
             return false;
         }
 
         // Create Project
         if (!projectExist) {
+            var createProjectUrl = URI.create(ifUrl + CHECK_PROJECT_API + 
+                    "?userName=" + user + 
+                    "&licenseKey=" + licenseKey + 
+                    "&projectName=" + projectName + 
+                    "&systemName=" + systemName + 
+                    "&instanceType=PrivateCloud" + 
+                    "&projectCloudType=" + projectType + 
+                    "&insightAgentType=Custom" + 
+                    "&dataType=Log" + 
+                    "&operation=create");
+            var createProjectRequest = HttpRequest.newBuilder()
+                    .uri(createProjectUrl)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(emptyFormBody))
+                    .build();
 
-            var createProjectUrl = Objects.requireNonNull(HttpUrl.parse(ifUrl + CHECK_PROJECT_API))
-                    .newBuilder()
-                    .addQueryParameter("userName", user)
-                    .addQueryParameter("licenseKey", licenseKey)
-                    .addQueryParameter("projectName", projectName)
-                    .addQueryParameter("systemName", systemName)
-                    .addQueryParameter("instanceType", "PrivateCloud")
-                    .addQueryParameter("projectCloudType", projectType)
-                    .addQueryParameter("insightAgentType", "Custom")
-                    .addQueryParameter("dataType", "Log")
-                    .addQueryParameter("operation", "create").build();
-            var createProjectRequest = new Request.Builder().url(createProjectUrl).addHeader("Content-Type", "application/x-www-form-urlencoded")
-                    .post(emptyFormBody).build();
-
-            try (Response response = httpClient.newCall(createProjectRequest).execute()) {
-                var responseBodyJson = JSON.parseObject(response.body().string());
-                if (response.isSuccessful()) {
+            try {
+                var response = httpClient.send(createProjectRequest, HttpResponse.BodyHandlers.ofString());
+                var responseBodyJson = JSON.parseObject(response.body());
+                if (response.statusCode() == 200) {
                     var isProjectCreated = responseBodyJson.getBoolean("success");
                     if (isProjectCreated) {
                         LOG.info("Project '{}' created for user '{}'", projectName, user);
@@ -96,10 +93,10 @@ public class InsightFinderService {
                         return false;
                     }
                 } else {
-                    LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user, response.code());
+                    LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user, response.statusCode());
                     return false;
                 }
-            } catch (Exception e) {
+            } catch (IOException | InterruptedException e) {
                 LOG.error(e.getMessage());
                 return false;
             }
@@ -124,19 +121,20 @@ public class InsightFinderService {
         iFPayload.setProjectName(projectName);
         iFPayload.setInsightAgentType("LogStreaming");
 
-        RequestBody body = RequestBody.create(JSON.toJSONBytes(iFPayload), MediaType.get("application/json"));
-        Request request = new Request.Builder()
-                .url(Config.getServerConfig().insightFinderUrl + LOG_STREAM_API)
-                .addHeader("agent-type", "Stream")
-                .addHeader("Content-Type", "application/json")
-                .post(body)
+        var body = JSON.toJSONBytes(iFPayload);
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(Config.getServerConfig().insightFinderUrl + LOG_STREAM_API))
+                .header("agent-type", "Stream")
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                 .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                LOG.error("Error sending log data with response: {}", response.message());
+        try {
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                LOG.error("Error sending log data with response: {}", response.body());
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             LOG.error("Error sending log data with exception: {}", e.getMessage());
         }
     }
