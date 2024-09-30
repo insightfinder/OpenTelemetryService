@@ -20,12 +20,19 @@ import java.util.Objects;
 
 public class InsightFinderService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InsightFinderService.class);
-    private static final OkHttpClient httpClient = new OkHttpClient();
-    private static final String LOG_STREAM_API = "/api/v1/customprojectrawdata";
-    private static final String CHECK_PROJECT_API = "/api/v1/check-and-add-custom-project";
+    private final Logger LOG = LoggerFactory.getLogger(InsightFinderService.class);
+    private final String LOG_STREAM_API = "/api/v1/customprojectrawdata";
+    private final String CHECK_PROJECT_API = "/api/v1/check-and-add-custom-project";
 
-    public static boolean createProjectIfNotExist(String projectName, String projectType, String systemName, String user, String licenseKey) {
+    private final String ifUrl;
+
+    public InsightFinderService(String ifUrl) {
+        this.ifUrl = ifUrl;
+    }
+
+    public boolean createProjectIfNotExist(String projectName, String projectType, String systemName, String user, String licenseKey) {
+
+        var httpClient = new OkHttpClient();
 
         boolean projectExist;
         RequestBody emptyFormBody = new FormBody.Builder()
@@ -63,7 +70,7 @@ public class InsightFinderService {
         // Create Project
         if (!projectExist) {
 
-            var createProjectUrl = Objects.requireNonNull(HttpUrl.parse("https://stg.insightfinder.com/api/v1/check-and-add-custom-project"))
+            var createProjectUrl = Objects.requireNonNull(HttpUrl.parse("%s/%s".formatted(ifUrl,CHECK_PROJECT_API)))
                     .newBuilder()
                     .addQueryParameter("userName", user)
                     .addQueryParameter("licenseKey", licenseKey)
@@ -101,9 +108,12 @@ public class InsightFinderService {
         }
     }
 
-    public static void sendData(Object data, String userName, String licenseKey, String projectName, String instanceName, long timestamp, String componentName) {
+    public void sendData(Object data, String userName, String licenseKey, String projectName, String instanceName, long timestamp, String componentName) {
         var iFLogData = new IFLogDataPayload();
         var iFPayload = new IFLogDataReceivePayload();
+
+        var httpClient = new OkHttpClient();
+
 
         iFLogData.setData(data);
         iFLogData.setTimeStamp(timestamp);
@@ -134,13 +144,13 @@ public class InsightFinderService {
         }
     }
 
-    public static void sendLogData(LogData logData) {
+    public void sendData(LogData logData) {
         var user = ParseUtil.getIfUserFromMetadata(logData.metadata);
         var licenseKey = ParseUtil.getLicenseKeyFromMedata(logData.metadata);
         sendData(logData.data, user, licenseKey, logData.projectName, logData.instanceName, logData.timestamp, logData.componentName);
     }
 
-    public static void sendTraceData(SpanData spanData) {
+    public void sendData(SpanData spanData) {
         var user = ParseUtil.getIfUserFromMetadata(spanData.metadata);
         var licenseKey = ParseUtil.getLicenseKeyFromMedata(spanData.metadata);
         sendData(spanData, user, licenseKey, spanData.projectName, spanData.instanceName, TimestampUtil.ToUnixMili(String.valueOf(spanData.startTime)), spanData.componentName);

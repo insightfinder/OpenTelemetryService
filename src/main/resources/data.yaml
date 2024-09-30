@@ -13,13 +13,13 @@ users:
         # The rule to extract projectName from the data
         projectFrom:
           - source: "static"
-            value: "maoyu-e2e-test-otlp-log-ng2"
+            value: "maoyu-benchmark-otlp-2"
 
         # (Optional)
         # The rule to extract systemName from the data
         systemFrom:
           - source: "static"
-            value: "maoyu-e2e-test-otlpserver"
+            value: "maoyu-benchmark-otlp"
 
         # The rule to extract instanceName from the data
         instanceFrom:

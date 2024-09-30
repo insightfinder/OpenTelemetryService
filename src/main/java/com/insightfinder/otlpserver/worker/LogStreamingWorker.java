@@ -1,6 +1,7 @@
 package com.insightfinder.otlpserver.worker;
 
 import com.insightfinder.otlpserver.GRPCServer;
+import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.service.InsightFinderService;
 import com.insightfinder.otlpserver.util.ParseUtil;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 public class LogStreamingWorker implements Runnable {
 
   private Logger LOG = LoggerFactory.getLogger(LogStreamingWorker.class);
+  private InsightFinderService InsightFinder = new InsightFinderService(Config.getServerConfig().insightFinderUrl);
 
   public LogStreamingWorker(int threadNum){
     LOG.info("LogStreamingProcessor thread " + threadNum + " started.");
@@ -38,7 +40,7 @@ public class LogStreamingWorker implements Runnable {
 
       // Create Project if not in cache list
       if (GRPCServer.projectLocalCache.get(logData.projectName) == null){
-        var isProjectCreated = InsightFinderService.createProjectIfNotExist(logData.projectName,"Trace", logData.systemName,user,licenseKey);
+        var isProjectCreated = InsightFinder.createProjectIfNotExist(logData.projectName,"Log", logData.systemName,user,licenseKey);
 
         // Save creation result to cache
         if (isProjectCreated){
@@ -46,7 +48,7 @@ public class LogStreamingWorker implements Runnable {
         }
       }
 
-      InsightFinderService.sendLogData(logData);
+      InsightFinder.sendData(logData);
       LOG.info("Send 1 log message to project '{}' for user '{}'",logData.projectName,user);
     }
   }
