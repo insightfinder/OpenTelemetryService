@@ -2,7 +2,6 @@ package com.insightfinder.otlpserver.util;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.JSONPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
