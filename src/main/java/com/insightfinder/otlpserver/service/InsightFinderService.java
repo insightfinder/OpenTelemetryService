@@ -150,7 +150,7 @@ public class InsightFinderService {
             var iFLogData = new IFLogDataPayload();
 
             var dataEntry = logDataList.get(i);
-            iFLogData.setData(dataEntry);
+            iFLogData.setData(dataEntry.data);
 
             iFLogData.setComponentName(dataEntry.componentName);
             iFLogData.setTimeStamp(TimestampUtil.ToUnixMili(String.valueOf(dataEntry.timestamp)));
