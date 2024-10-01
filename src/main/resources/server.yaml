@@ -21,4 +21,4 @@ worker:
 
   # Streaming worker: Send data to InsightFinder.
   streamingThreads: 1
-  streamingBatchSize: 200
+  streamingBatchSize: 100
