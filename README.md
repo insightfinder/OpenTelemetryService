@@ -53,6 +53,7 @@ worker:
 
   # Streaming worker: Send data to InsightFinder.
   streamingThreads: 1
+  streamingBatchSize: 100
 ```
 ### Data Processing Configuration
 Example: [data.yaml](src/main/resources/data.yaml)
