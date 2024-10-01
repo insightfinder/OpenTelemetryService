@@ -5,7 +5,8 @@ import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.entity.SpanData;
 import com.insightfinder.otlpserver.service.InsightFinderService;
 import com.insightfinder.otlpserver.util.ParseUtil;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +50,7 @@ public class TraceStreamingWorker implements Runnable {
           GRPCServer.projectLocalCache.putIfAbsent(spanData.projectName,true);
         }
       }
-
-      InsightFinder.sendData(spanData);
+      InsightFinder.sendSpanData(new ArrayList<>(List.of(spanData)));
       LOG.info("Send 1 trace message to project '{}' for user '{}'",spanData.projectName,user);
     }
   }

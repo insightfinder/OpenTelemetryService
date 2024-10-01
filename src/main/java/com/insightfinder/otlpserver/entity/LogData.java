@@ -4,11 +4,6 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import io.grpc.Metadata;
 
 public class LogData {
-  @JSONField(name = "spanId")
-  public String spanId;
-
-  @JSONField(name ="traceId")
-  public String traceId;
 
   @JSONField(name = "data")
   public Object data;

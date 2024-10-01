@@ -13,7 +13,7 @@ users:
         # The rule to extract projectName from the data
         projectFrom:
           - source: "static"
-            value: "maoyu-benchmark-otlp-2"
+            value: "maoyu-benchmark-otlp-3"
 
         # (Optional)
         # The rule to extract systemName from the data

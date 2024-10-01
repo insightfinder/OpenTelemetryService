@@ -31,17 +31,18 @@ public class InsightFinderService {
         this.ifUrl = ifUrl;
     }
 
-    public boolean createProjectIfNotExist(String projectName, String projectType, String systemName, String user, String licenseKey) {
+    public boolean createProjectIfNotExist(String projectName, String projectType, String systemName, String user,
+            String licenseKey) {
 
         boolean projectExist;
         var emptyFormBody = "anything=anything";
 
         // Check Project
-        var checkProjectUrl = URI.create(Config.getServerConfig().insightFinderUrl + CHECK_PROJECT_API + 
-                "?userName=" + user + 
-                "&licenseKey=" + licenseKey + 
-                "&projectName=" + projectName + 
-                "&systemName=" + systemName + 
+        var checkProjectUrl = URI.create(Config.getServerConfig().insightFinderUrl + CHECK_PROJECT_API +
+                "?userName=" + user +
+                "&licenseKey=" + licenseKey +
+                "&projectName=" + projectName +
+                "&systemName=" + systemName +
                 "&operation=check");
         var checkProjectRequest = HttpRequest.newBuilder()
                 .uri(checkProjectUrl)
@@ -64,15 +65,15 @@ public class InsightFinderService {
 
         // Create Project
         if (!projectExist) {
-            var createProjectUrl = URI.create(ifUrl + CHECK_PROJECT_API + 
-                    "?userName=" + user + 
-                    "&licenseKey=" + licenseKey + 
-                    "&projectName=" + projectName + 
-                    "&systemName=" + systemName + 
-                    "&instanceType=PrivateCloud" + 
-                    "&projectCloudType=" + projectType + 
-                    "&insightAgentType=Custom" + 
-                    "&dataType=Log" + 
+            var createProjectUrl = URI.create(ifUrl + CHECK_PROJECT_API +
+                    "?userName=" + user +
+                    "&licenseKey=" + licenseKey +
+                    "&projectName=" + projectName +
+                    "&systemName=" + systemName +
+                    "&instanceType=PrivateCloud" +
+                    "&projectCloudType=" + projectType +
+                    "&insightAgentType=Custom" +
+                    "&dataType=Log" +
                     "&operation=create");
             var createProjectRequest = HttpRequest.newBuilder()
                     .uri(createProjectUrl)
@@ -89,11 +90,13 @@ public class InsightFinderService {
                         LOG.info("Project '{}' created for user '{}'", projectName, user);
                         return true;
                     } else {
-                        LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user, responseBodyJson.getString("message"));
+                        LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user,
+                                responseBodyJson.getString("message"));
                         return false;
                     }
                 } else {
-                    LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user, response.statusCode());
+                    LOG.error("Failed to create project '{}' for user '{}': {}", projectExist, user,
+                            response.statusCode());
                     return false;
                 }
             } catch (IOException | InterruptedException e) {
@@ -105,18 +108,12 @@ public class InsightFinderService {
         }
     }
 
-    public void sendData(Object data, String userName, String licenseKey, String projectName, String instanceName, long timestamp, String componentName) {
-        var iFLogData = new IFLogDataPayload();
+    public void sendIFData(List<IFLogDataPayload> iFLogDataList, String projectName, String user, String licenseKey) {
+
         var iFPayload = new IFLogDataReceivePayload();
 
-        iFLogData.setData(data);
-        iFLogData.setTimeStamp(timestamp);
-        iFLogData.setTag(instanceName);
-        if (componentName != null && !componentName.isEmpty()) {
-            iFLogData.setComponentName(componentName);
-        }
-        iFPayload.setLogDataList(new ArrayList<>(List.of(iFLogData)));
-        iFPayload.setUserName(userName);
+        iFPayload.setLogDataList(iFLogDataList);
+        iFPayload.setUserName(user);
         iFPayload.setLicenseKey(licenseKey);
         iFPayload.setProjectName(projectName);
         iFPayload.setInsightAgentType("LogStreaming");
@@ -139,15 +136,55 @@ public class InsightFinderService {
         }
     }
 
-    public void sendData(LogData logData) {
-        var user = ParseUtil.getIfUserFromMetadata(logData.metadata);
-        var licenseKey = ParseUtil.getLicenseKeyFromMedata(logData.metadata);
-        sendData(logData.data, user, licenseKey, logData.projectName, logData.instanceName, logData.timestamp, logData.componentName);
+    public void sendLogData(List<LogData> logDataList) {
+
+        // Init
+        var iFLogDataList = new ArrayList<IFLogDataPayload>();
+
+        // Get Basic Info
+        var user = ParseUtil.getIfUserFromMetadata(logDataList.get(0).metadata);
+        var licenseKey = ParseUtil.getLicenseKeyFromMedata(logDataList.get(0).metadata);
+        var projectName = logDataList.get(0).projectName;
+
+        for (int i = 0; i < logDataList.size(); i++) {
+            var iFLogData = new IFLogDataPayload();
+
+            var dataEntry = logDataList.get(i);
+            iFLogData.setData(dataEntry);
+
+            iFLogData.setComponentName(dataEntry.componentName);
+            iFLogData.setTimeStamp(TimestampUtil.ToUnixMili(String.valueOf(dataEntry.timestamp)));
+            iFLogData.setTag(dataEntry.instanceName);
+
+            iFLogDataList.add(iFLogData);
+        }
+
+        sendIFData(iFLogDataList, projectName, user, licenseKey);
     }
 
-    public void sendData(SpanData spanData) {
-        var user = ParseUtil.getIfUserFromMetadata(spanData.metadata);
-        var licenseKey = ParseUtil.getLicenseKeyFromMedata(spanData.metadata);
-        sendData(spanData, user, licenseKey, spanData.projectName, spanData.instanceName, TimestampUtil.ToUnixMili(String.valueOf(spanData.startTime)), spanData.componentName);
+    public void sendSpanData(List<SpanData> spanDataList) {
+
+        // Init
+        var iFLogDataList = new ArrayList<IFLogDataPayload>();
+
+        // Get Basic Info
+        var user = ParseUtil.getIfUserFromMetadata(spanDataList.get(0).metadata);
+        var licenseKey = ParseUtil.getLicenseKeyFromMedata(spanDataList.get(0).metadata);
+        var projectName = spanDataList.get(0).projectName;
+
+        for (int i = 0; i < spanDataList.size(); i++) {
+            var iFLogData = new IFLogDataPayload();
+
+            var dataEntry = spanDataList.get(i);
+            iFLogData.setData(dataEntry);
+
+            iFLogData.setComponentName(dataEntry.componentName);
+            iFLogData.setTimeStamp(dataEntry.startTime);
+            iFLogData.setTag(dataEntry.instanceName);
+
+            iFLogDataList.add(iFLogData);
+        }
+
+        sendIFData(iFLogDataList, projectName, user, licenseKey);
     }
 }

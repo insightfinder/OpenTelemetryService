@@ -1,5 +1,5 @@
 # InsightFinder Engine URL
-insightFinderUrl: "https://stg.insightfinder.com"
+insightFinderUrl: "https://app.insightfinder.com"
 
 # The gRPC server listen port
 port: 4317
@@ -21,3 +21,4 @@ worker:
 
   # Streaming worker: Send data to InsightFinder.
   streamingThreads: 1
+  streamingBatchSize: 200

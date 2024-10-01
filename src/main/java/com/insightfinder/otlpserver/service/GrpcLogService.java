@@ -2,7 +2,6 @@ package com.insightfinder.otlpserver.service;
 
 import com.insightfinder.otlpserver.GRPCServer;
 import com.insightfinder.otlpserver.entity.LogData;
-import com.insightfinder.otlpserver.util.ParseUtil;
 import io.grpc.Metadata;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
@@ -37,8 +36,6 @@ public class GrpcLogService extends LogsServiceGrpc.LogsServiceImplBase {
         for(var logRecord: scopeLog.getLogRecordsList()){
           var logData = new LogData();
           logData.rawData = logRecord.getBody().getStringValue();
-          logData.spanId = ParseUtil.parseHexadecimalBytes(logRecord.getSpanId());
-          logData.traceId = ParseUtil.parseHexadecimalBytes(logRecord.getTraceId());
           logData.metadata = metadata;
           logData.senderTimestamp = logRecord.getTimeUnixNano();
           var result = GRPCServer.logProcessQueue.offer(logData);
