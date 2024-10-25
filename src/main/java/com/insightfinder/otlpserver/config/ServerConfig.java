@@ -17,6 +17,7 @@ public class ServerConfig {
   public static class Worker{
     public int processThreads;
     public int streamingThreads;
+    public int streamingBatchSize = 100;
   }
 
   @Override
