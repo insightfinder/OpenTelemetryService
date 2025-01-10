@@ -19,6 +19,7 @@ public class DataConfig {
 
   public static class dataType {
     public ExtractionItems extraction;
+    public Map<String, FilterRuleStr> filter;
   }
 
   public static class ExtractionItems {
@@ -27,6 +28,11 @@ public class DataConfig {
     public List<ExtractionRuleStr> componentFrom;
     public List<ExtractionRuleStr> timestampFrom;
     public List<ExtractionRuleStr> systemFrom;
+  }
+
+  public static class FilterRuleStr {
+    public List<String> jsonFieldName;
+    public List<String> stringContent;
   }
 
   public static class ExtractionRuleStr {
