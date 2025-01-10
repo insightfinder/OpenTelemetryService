@@ -4,33 +4,38 @@ import com.alibaba.fastjson2.JSON;
 import com.insightfinder.otlpserver.config.JsonStructure;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.util.JsonUtil;
+import com.insightfinder.otlpserver.util.RuleUtil;
 import com.insightfinder.otlpserver.util.RuleUtil.FilterRule;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
-public class SensitiveDataFilter extends Filter {
+public class LogDataFilter {
 
-  private static SensitiveDataFilter instance;
-  private static final String FILTER_NAME = "sensitive";
+  private static LogDataFilter instance;
 
-  private SensitiveDataFilter() {
+  private LogDataFilter() {
   }
 
-  public static SensitiveDataFilter getInstance() {
+  public static LogDataFilter getInstance() {
     if (instance == null) {
-      instance = new SensitiveDataFilter();
+      instance = new LogDataFilter();
     }
     return instance;
   }
 
-  @Override
   public void filter(String user, LogData data) {
-    FilterRule filterRule = getFilterRule(user);
-    if (filterRule == null) {
+    List<FilterRule> filterRules = getFilterRule(user);
+    if (filterRules == null || filterRules.isEmpty()) {
       return;
     }
+    for (FilterRule filterRule : filterRules) {
+      filter(filterRule, data);
+    }
+  }
+
+  private void filter(FilterRule filterRule, LogData data) {
     if (JsonUtil.isValidJsonStr(data.rawData)) {
       List<JsonStructure> jsonStructures = filterRule.jsonStructures;
       if (jsonStructures == null || jsonStructures.isEmpty()) {
@@ -52,9 +57,12 @@ public class SensitiveDataFilter extends Filter {
     }
   }
 
-  @Override
-  protected String getFilterName() {
-    return FILTER_NAME;
+  private List<FilterRule> getFilterRule(String user) {
+    try {
+      return RuleUtil.logFilterRules.get(user);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

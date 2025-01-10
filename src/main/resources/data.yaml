@@ -39,11 +39,15 @@ users:
             field: "_source.timestamp"
 
       filter:
-        sensitive:
-          jsonFieldName:
-#            - "something"
+        - jsonFieldName:
+            - "something"
+            - "something"
           stringContent:
-#            - "something"
+            - "something"
+        - jsonFieldName:
+            - "something"
+          stringContent:
+            - "something"
 
     # Rules to process trace data.
     trace:

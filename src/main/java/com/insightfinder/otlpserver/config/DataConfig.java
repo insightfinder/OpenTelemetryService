@@ -19,7 +19,7 @@ public class DataConfig {
 
   public static class dataType {
     public ExtractionItems extraction;
-    public Map<String, FilterRuleStr> filter;
+    public List<FilterRuleStr> filter;
   }
 
   public static class ExtractionItems {

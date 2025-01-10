@@ -99,7 +99,14 @@ users:
         timestampFrom:
           - source: ''
             field: ''
-    
+            
+      filter:
+        sensitive:
+          jsonFieldName:
+          #            - "something"
+          stringContent:
+    #            - "something"
+
     # Rules to process trace data.
     trace:
       extraction:
@@ -169,6 +176,29 @@ users:
         - source: 'static'
           value: 'mysystem'
 ```
+
+#### Log filter (Optional)
+
+`users.log.filter` defines all the log data filter rules. If any log content matched the filter
+rule, the content will be removed from the log data before sending to InsightFinder.
+
+We support two types of filter rules for two types of log data:
+
+1. Filter **plain text log** (non-JSON format) by regex: provide one or multiple word, sentence or
+   regex
+   in `stringContent` to remove all contents in the log data that match the regex.
+2. Filter **JSON log data** by JSON field and regex: provide one or multiple json field name
+   expression
+   and value regex in `jsonFieldName` to remove all contents to the JSON field in the log data that
+   match the regex.
+   - Remove JSON field: if only provide the field name expression, the whole field will be removed.
+   - Remove the JSON field value matching content: if provide the field name expression and the
+     value regex, only the value that matches the regex will be removed. Use `=` to connect field
+     name expression
+     and value matching regex, i.e `filedNameExp=regex`.
+
+   JSON field name expression: `field1->field2->field3...` where `field1` is the top-level field
+   name in the JSON data. If the field is nested, use `->` to separate the field name.
 
 ## Example Data
 Trace data body should look like the following:

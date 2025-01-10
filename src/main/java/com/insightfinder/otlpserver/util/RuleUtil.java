@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class RuleUtil {
     private static Logger LOG = LoggerFactory.getLogger(RuleUtil.class);
     public static Map<String, Map<String, List<Rule>>> logExtractionRules = new HashMap<>();
-    public static Map<String, Map<String, FilterRule>> logFilterRules = new HashMap<>();
+    public static Map<String, List<FilterRule>> logFilterRules = new HashMap<>();
     public static Map<String, Map<String, List<Rule>>> traceExtractionRules = new HashMap<>();
 
     public static class Rule {
@@ -52,7 +52,7 @@ public class RuleUtil {
 
     public static void initLogFilterRules() {
         for (var user : Config.getDataConfig().users.keySet()) {
-            logFilterRules.putIfAbsent(user, new HashMap<>());
+            logFilterRules.putIfAbsent(user, new ArrayList<>());
             if(Config.getDataConfig().users.get(user).log == null){
                 LOG.warn("User %s doesn't have log rules.".formatted(user));
                 return;
@@ -60,13 +60,11 @@ public class RuleUtil {
             // Load Log Rules
             var userLogFilterRules = logFilterRules.get(user);
             var filterItems = Config.getDataConfig().users.get(user).log.filter;
-            if (filterItems == null) {
+            if (filterItems == null || filterItems.isEmpty()) {
                 return;
             }
-            FilterRule sensitiveFilterRule = compileFilterRule(filterItems.get("sensitive"));
-            if (sensitiveFilterRule != null){
-              userLogFilterRules.put("sensitive", sensitiveFilterRule);
-            }
+           filterItems.forEach(
+               filterRuleStr -> userLogFilterRules.add(compileFilterRule(filterRuleStr)));
         }
     }
 
