@@ -59,12 +59,22 @@ public class LogStreamingWorker implements Runnable {
         continue;
       }
 
+      LOG.info("=== LOG STREAMING WORKER PROCESSING ===");
+      LOG.info("Processing LogData: projectName={}, instanceName={}, rawData='{}'", 
+               logData.projectName, logData.instanceName, logData.rawData);
+      LOG.info("LogData data field: {}", logData.data);
+
       var user = ParseUtil.getIfUserFromMetadata(logData.metadata);
       var licenseKey = ParseUtil.getLicenseKeyFromMedata(logData.metadata);
 
+      LOG.info("User: {}, LicenseKey: {}", user, licenseKey);
+
       if (!ValidationUtil.ValidLogData(logData)) {
-        LOG.warn("Log data validation failed.");
+        LOG.warn("Log data validation failed in streaming worker.");
+        continue;
       }
+
+      LOG.info("LogData validation passed in streaming worker");
 
       // Create Project if not in cache list
       if (GRPCServer.projectLocalCache.get(logData.projectName) == null){

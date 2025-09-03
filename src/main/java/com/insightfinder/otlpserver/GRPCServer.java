@@ -76,7 +76,7 @@ public class GRPCServer{
               .addService(traceService)
               .addService(logService)
               .intercept(interceptor) // Add the interceptor to store metadata
-              .maxInboundMessageSize(16 * 1024 * 1024)
+              .maxInboundMessageSize(1024 * 1024 * 1024)
               .sslContext(sslContext)
               .build();
 
@@ -85,7 +85,7 @@ public class GRPCServer{
               .addService(traceService)
               .addService(logService)
               .intercept(interceptor) // Add the interceptor to store metadata
-              .maxInboundMessageSize(16 * 1024 * 1024)
+              .maxInboundMessageSize(1024 * 1024 * 1024)
               .build();
     }
 

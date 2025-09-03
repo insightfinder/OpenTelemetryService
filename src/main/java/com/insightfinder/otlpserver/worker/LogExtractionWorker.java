@@ -38,11 +38,17 @@ public class LogExtractionWorker implements Runnable {
         continue;
       }
 
+      LOG.info("=== LOG EXTRACTION WORKER PROCESSING ===");
+      LOG.info("Processing LogData with rawData: '{}'", logData.rawData);
+      LOG.info("Metadata: {}", logData.metadata);
 
       // Validate LogData
       if(!ValidationUtil.ValidLogData(logData)){
+        LOG.warn("LogData validation failed for rawData: '{}'", logData.rawData);
         continue;
       }
+      
+      LOG.info("LogData validation passed");
 
       // Setup
       var user = ParseUtil.getIfUserFromMetadata(logData.metadata);

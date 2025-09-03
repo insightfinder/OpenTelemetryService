@@ -35,8 +35,7 @@ users:
 
         # The rule to extract timestamp from the data
         timestampFrom:
-          - source: "body"
-            field: "_source.timestamp"
+          - source: "sender"
 
     # Rules to process trace data.
     trace:
