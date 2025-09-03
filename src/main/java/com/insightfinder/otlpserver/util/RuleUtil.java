@@ -2,6 +2,8 @@ package com.insightfinder.otlpserver.util;
 
 import com.insightfinder.otlpserver.config.Config;
 import com.insightfinder.otlpserver.config.DataConfig;
+import com.insightfinder.otlpserver.config.DataConfig.FilterRuleStr;
+import com.insightfinder.otlpserver.config.JsonStructure;
 import com.insightfinder.otlpserver.entity.LogData;
 import com.insightfinder.otlpserver.entity.SpanData;
 import io.grpc.Metadata;
@@ -14,6 +16,7 @@ import java.util.regex.Pattern;
 public class RuleUtil {
     private static Logger LOG = LoggerFactory.getLogger(RuleUtil.class);
     public static Map<String, Map<String, List<Rule>>> logExtractionRules = new HashMap<>();
+    public static Map<String, List<FilterRule>> logFilterRules = new HashMap<>();
     public static Map<String, Map<String, List<Rule>>> traceExtractionRules = new HashMap<>();
 
     public static class Rule {
@@ -21,6 +24,11 @@ public class RuleUtil {
         public String field;
         public Pattern regex;
         public String value;
+    }
+
+    public static class FilterRule {
+        public List<JsonStructure> jsonStructures;
+        public List<Pattern> regexPatterns;
     }
 
     public static void initLogExtractionRules() {
@@ -39,6 +47,24 @@ public class RuleUtil {
             userLogExtractionRules.put("project", CompileRules(Config.getDataConfig().users.get(user).log.extraction.projectFrom));
             userLogExtractionRules.put("timestamp", CompileRules(Config.getDataConfig().users.get(user).log.extraction.timestampFrom));
             userLogExtractionRules.put("system", CompileRules(Config.getDataConfig().users.get(user).log.extraction.systemFrom));
+        }
+    }
+
+    public static void initLogFilterRules() {
+        for (var user : Config.getDataConfig().users.keySet()) {
+            logFilterRules.putIfAbsent(user, new ArrayList<>());
+            if(Config.getDataConfig().users.get(user).log == null){
+                LOG.warn("User %s doesn't have log rules.".formatted(user));
+                return;
+            }
+            // Load Log Rules
+            var userLogFilterRules = logFilterRules.get(user);
+            var filterItems = Config.getDataConfig().users.get(user).log.filter;
+            if (filterItems == null || filterItems.isEmpty()) {
+                return;
+            }
+           filterItems.forEach(
+               filterRuleStr -> userLogFilterRules.add(compileFilterRule(filterRuleStr)));
         }
     }
 
@@ -118,7 +144,6 @@ public class RuleUtil {
         return result;
     }
 
-
     public static String extractSpanDataByRules(String user, String dataType, SpanData spanData) {
         var result = "";
         // Try traceAttributes
@@ -185,6 +210,30 @@ public class RuleUtil {
             }
         }
         return result;
+    }
+
+    private static FilterRule compileFilterRule(FilterRuleStr filterRuleStr) {
+        if (filterRuleStr == null) {
+            return null;
+        }
+        var jsonFieldNames = filterRuleStr.jsonFieldName;
+        List<JsonStructure> jsonStructs = new ArrayList<>();
+        if (jsonFieldNames != null) {
+            jsonStructs = jsonFieldNames.stream()
+                .map(it -> new JsonStructure(it, true))
+                .toList();
+        }
+        var stringContents = filterRuleStr.stringContent;
+        List<Pattern> regexPatterns = new ArrayList<>();
+        if (stringContents != null) {
+            regexPatterns = stringContents.stream()
+                .map(Pattern::compile)
+                .toList();
+        }
+        var filterRule = new FilterRule();
+        filterRule.jsonStructures = jsonStructs;
+        filterRule.regexPatterns = regexPatterns;
+        return filterRule;
     }
 
 }

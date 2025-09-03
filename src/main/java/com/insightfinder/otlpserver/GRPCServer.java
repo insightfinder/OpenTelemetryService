@@ -60,6 +60,7 @@ public class GRPCServer{
     // Rule Engine
     RuleUtil.initLogExtractionRules();
     RuleUtil.initTraceExtractionRules();
+    RuleUtil.initLogFilterRules();
 
     // Interception
     GrpcInterceptionService interceptor = new GrpcInterceptionService();

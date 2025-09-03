@@ -38,6 +38,17 @@ users:
           - source: "body"
             field: "_source.timestamp"
 
+      filter:
+        - jsonFieldName:
+            - "something"
+            - "something"
+          stringContent:
+            - "something"
+        - jsonFieldName:
+            - "something"
+          stringContent:
+            - "something"
+
     # Rules to process trace data.
     trace:
       extraction:

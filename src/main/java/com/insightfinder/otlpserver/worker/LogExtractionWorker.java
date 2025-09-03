@@ -84,6 +84,7 @@ public class LogExtractionWorker implements Runnable {
         logData.systemName = systemName;
       }
 
+      FilterUtil.filter(user, logData);
 
       // Transform Raw data to actual data
       if(JsonUtil.isValidJsonStr(logData.rawData)){
